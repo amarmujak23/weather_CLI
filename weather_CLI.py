@@ -3,21 +3,34 @@ import json
 from datetime import datetime
 
 """
-App workflow:
+Checklist:
 
-1. Ask the user for a city name.
-2. Use Open-Meteo's geocoding API to search for that city.
-3. Extract latitude and longitude from the geocoding results.
-4. Use Open-Meteo's forecast API with those coordinates.
-5. Pull out basic weather values (e.g., temperature).
-6. Print the weather information clearly in the terminal.
+1. Make output more cleaner
+2. Find more paramaters to pull from the API
 
-This script is a simple command-line weather client using Open-Meteo APIs.
 """
+
+
+with open("weather_codes.json", "r") as file:
+    weather_codes = json.load(file)
 
 
 print("Welcome to the Weather CLI!")
 city = input("Please enter the city name: ")
+
+
+def format_forecast_date(date_text):
+    forecast_date = datetime.strptime(date_text, "%Y-%m-%d")
+    month_text = forecast_date.strftime("%B")
+    day_number = forecast_date.day
+    day_of_week = forecast_date.strftime("%A")
+
+    if 10 <= day_number % 100 <= 20:
+        suffix = "th"
+    else:
+        suffix = {1: "st", 2: "nd", 3: "rd"}.get(day_number % 10, "th")
+
+    return f"{day_of_week}, {month_text} {day_number}{suffix}"
 
 
 #Open-Meteo's geocoding API to find that city
@@ -44,8 +57,7 @@ if city_selection < 1 or city_selection > 10:
     print("Invalid selection. Please select a number between 1 and 10.")
 else:
     selected_city = data['results'][city_selection - 1] #This line selects the city from the results list based on the user's selection. The index is adjusted by subtracting 1 because list indices start at 0.
-    print(f"You selected: {selected_city['name']}, {selected_city['admin1']}")
-    print(f"The latitude and longitude of {selected_city['name']} are: {selected_city['latitude']}, {selected_city['longitude']}")
+    #print(f"The latitude and longitude of {selected_city['name']} are: {selected_city['latitude']}, {selected_city['longitude']}")
 
 
 latitude = selected_city['latitude'] #This line extracts the latitude of the city from the JSON data. 
@@ -63,26 +75,50 @@ forecast_url = (
 )
 
 
-now = datetime.now()
-day_text = now.strftime("%d")
-month_text = now.strftime("%m")
-
-
 forecast_data = requests.get(forecast_url).json() 
-print(forecast_data["daily"]["time"])
-print(forecast_data["daily"]["temperature_2m_max"])
-
-print(forecast_data["daily"]["weather_code"])
-
-
 #Format forcast data into a more readable format for the user. 
 format_forecast = []
-for i in range(len(forecast_data["daily"]["time"])):
-    date = forecast_data["daily"]["time"][i]
+for i, date in enumerate(forecast_data["daily"]["time"]):
+    formatted_date = format_forecast_date(date)
     max_temp = forecast_data["daily"]["temperature_2m_max"][i]
     min_temp = forecast_data["daily"]["temperature_2m_min"][i]
     weather_code = forecast_data["daily"]["weather_code"][i]
-    format_forecast.append(f"Date: {date}, Max Temp: {max_temp}°F, Min Temp: {min_temp}°F, Weather Code: {weather_code}")
-print(f"\n1 Here is the 10-Day Weather Forecast for {selected_city['name']}:")
-for forecast in format_forecast:
-    print(forecast)
+    weather_description = weather_codes.get(str(weather_code), "Unknown weather code")
+    format_forecast.append(f"{formatted_date}, Max Temp: {max_temp}F, Min Temp: {min_temp}F, Conditions: {weather_description}")
+print(f"\n Here is the 10-Day Weather Forecast for {selected_city['name']}, {selected_city['admin1']}:")
+for forecast in format_forecast: 
+    print(f"\n{forecast}")
+
+
+
+
+"Best example output:"
+
+"""
+========================================
+  10-Day Weather Forecast
+  Boise, Idaho
+========================================
+
+Put each day on its own "card"
+
+Tuesday, June 16th
+  Weather: Overcast
+  High:    93.6°F
+  Low:     60.4°F
+
+Weather icons
+
+☀ Clear sky
+☁ Overcast
+🌧 Light rain
+⛈ Thunderstorm
+❄ Snow
+
+Round temperatures:
+
+93.6°F → 94°F
+
+Add spaces between each city in the search results to make it easier to read:
+
+"""
