@@ -1,6 +1,6 @@
 import requests
 import json
-
+from datetime import datetime
 
 """
 App workflow:
@@ -48,19 +48,41 @@ else:
     print(f"The latitude and longitude of {selected_city['name']} are: {selected_city['latitude']}, {selected_city['longitude']}")
 
 
-# Need to ask for user input to select city
-
 latitude = selected_city['latitude'] #This line extracts the latitude of the city from the JSON data. 
 longitude = selected_city['longitude'] #This line extracts the longitude of the city from the JSON data
 
-
-forecast_url = f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&hourly=temperature_2m"
-
 # Use open Metro's forecast API with those coordinates and pull out simple weather values (e.g., temperature)
 
+forecast_url = (
+    f"https://api.open-meteo.com/v1/forecast"
+    f"?latitude={latitude}" #Grabs the latitude and longitude from the selected city
+    f"&longitude={longitude}"
+    f"&daily=temperature_2m_max,temperature_2m_min,weather_code"
+    f"&temperature_unit=fahrenheit"
+    f"&forecast_days=10"
+)
 
-"""
-print(response.status_code)
-if response.status_code == 200:
-    print("Pass")
-"""    
+
+now = datetime.now()
+day_text = now.strftime("%d")
+month_text = now.strftime("%m")
+
+
+forecast_data = requests.get(forecast_url).json() 
+print(forecast_data["daily"]["time"])
+print(forecast_data["daily"]["temperature_2m_max"])
+
+print(forecast_data["daily"]["weather_code"])
+
+
+#Format forcast data into a more readable format for the user. 
+format_forecast = []
+for i in range(len(forecast_data["daily"]["time"])):
+    date = forecast_data["daily"]["time"][i]
+    max_temp = forecast_data["daily"]["temperature_2m_max"][i]
+    min_temp = forecast_data["daily"]["temperature_2m_min"][i]
+    weather_code = forecast_data["daily"]["weather_code"][i]
+    format_forecast.append(f"Date: {date}, Max Temp: {max_temp}°F, Min Temp: {min_temp}°F, Weather Code: {weather_code}")
+print(f"\n1 Here is the 10-Day Weather Forecast for {selected_city['name']}:")
+for forecast in format_forecast:
+    print(forecast)
