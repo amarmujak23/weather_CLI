@@ -33,7 +33,7 @@ data = response.json() #This line converts the response from the API into a JSON
 print(f"Here is the top ten results for \"{city}\":")
 city_range = (0, 11)
 
-for i in range(len((city_range)):
+for i in range(len((city_range))):
     print(data["results"][i]["name"]+ ", " + data["results"][i]["admin1"])
 
 # Need to ask for user input to select city
