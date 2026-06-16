@@ -28,13 +28,23 @@ data = response.json() #This line converts the response from the API into a JSON
 
 
 #Need to figure out a way to structure this better, maybe a loop to print the city names and their corresponding admin1 (state/province) from the results list in the JSON data.
-#Enumerate city list
 
+
+#Print enumerate list of city names
 print(f"Here is the top ten results for \"{city}\":")
 city_range = (0, 11)
 
-for i in range(len((city_range))):
-    print(data["results"][i]["name"]+ ", " + data["results"][i]["admin1"])
+for index, result in enumerate(data["results"][city_range[0]:city_range[1]], start=1):
+    print(f"{index}. {result['name']}, {result['admin1']}")
+
+
+
+city_selection = int(input("Please select the number corresponding to the correct city: "))
+if city_selection < 1 or city_selection > 10:
+    print("Invalid selection. Please select a number between 1 and 10.")
+else:
+    selected_city = data['results'][city_selection - 1] #This line selects the city from the results list based on the user's selection. The index is adjusted by subtracting 1 because list indices start at 0.
+    print(f"You selected: {selected_city['name']}, {selected_city['admin1']}")
 
 # Need to ask for user input to select city
 
