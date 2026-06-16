@@ -45,12 +45,14 @@ if city_selection < 1 or city_selection > 10:
 else:
     selected_city = data['results'][city_selection - 1] #This line selects the city from the results list based on the user's selection. The index is adjusted by subtracting 1 because list indices start at 0.
     print(f"You selected: {selected_city['name']}, {selected_city['admin1']}")
+    print(f"The latitude and longitude of {selected_city['name']} are: {selected_city['latitude']}, {selected_city['longitude']}")
+
 
 # Need to ask for user input to select city
 
-latitude = data['results'][0]['latitude'] #This line extracts the latitude of the city from the JSON data. 
-longitude = data['results'][0]['longitude'] #This line extracts the longitude of the city from the JSON data
-#print(f"The latitude and longitude of {city} are: {latitude}, {longitude}")
+latitude = selected_city['latitude'] #This line extracts the latitude of the city from the JSON data. 
+longitude = selected_city['longitude'] #This line extracts the longitude of the city from the JSON data
+
 
 forecast_url = f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&hourly=temperature_2m"
 
