@@ -1,23 +1,27 @@
 import requests
 import json
 from datetime import datetime
+import os
+
+def clear():
+    # 'nt' means Windows, 'posix' means Mac or Linux
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 """
 Checklist:
 
-1. Make output more cleaner
-2. Find more paramaters to pull from the API
+1. Make beginning of app more user friendly
+2. Error handling
+3. exit/restart or select another city from original list of cities
 
 """
 
 
-with open("weather_codes.json", "r") as file:
+with open("weather_codes.json", "r", encoding='utf-8') as file:
     weather_codes = json.load(file)
 
-
-print("Welcome to the Weather CLI!")
 city = input("Please enter the city name: ")
-
+clear()
 
 def format_forecast_date(date_text):
     forecast_date = datetime.strptime(date_text, "%Y-%m-%d")
@@ -45,13 +49,14 @@ data = response.json() #This line converts the response from the API into a JSON
 
 #Print enumerate list of city names
 print(f"Here is the top ten results for \"{city}\":")
+print()
 city_range = (0, 11)
 
 for index, result in enumerate(data["results"][city_range[0]:city_range[1]], start=1):
     print(f"{index}. {result['name']}, {result['admin1']}")
 
 
-
+print()
 city_selection = int(input("Please select the number corresponding to the correct city: "))
 if city_selection < 1 or city_selection > 10:
     print("Invalid selection. Please select a number between 1 and 10.")
@@ -80,45 +85,24 @@ forecast_data = requests.get(forecast_url).json()
 format_forecast = []
 for i, date in enumerate(forecast_data["daily"]["time"]):
     formatted_date = format_forecast_date(date)
-    max_temp = forecast_data["daily"]["temperature_2m_max"][i]
-    min_temp = forecast_data["daily"]["temperature_2m_min"][i]
+    rounded_max_temp = round(forecast_data["daily"]["temperature_2m_max"][i])
+    rounded_min_temp = round(forecast_data["daily"]["temperature_2m_min"][i])
     weather_code = forecast_data["daily"]["weather_code"][i]
     weather_description = weather_codes.get(str(weather_code), "Unknown weather code")
-    format_forecast.append(f"{formatted_date}, Max Temp: {max_temp}F, Min Temp: {min_temp}F, Conditions: {weather_description}")
-print(f"\n Here is the 10-Day Weather Forecast for {selected_city['name']}, {selected_city['admin1']}:")
+    card = f"{formatted_date}\n  Weather: {weather_description}\n  High:    {rounded_max_temp}°F\n  Low:     {rounded_min_temp}°F"
+    format_forecast.append(card)
+    clear()
+
+
+print("========================================")
+print("  10-Day Weather Forecast")
+print()
+print(f"  {selected_city['name']}, {selected_city['admin1']}")
+print("========================================")
+print()
+
 for forecast in format_forecast: 
-    print(f"\n{forecast}")
+    print(forecast)
+    print()
 
 
-
-
-"Best example output:"
-
-"""
-========================================
-  10-Day Weather Forecast
-  Boise, Idaho
-========================================
-
-Put each day on its own "card"
-
-Tuesday, June 16th
-  Weather: Overcast
-  High:    93.6°F
-  Low:     60.4°F
-
-Weather icons
-
-☀ Clear sky
-☁ Overcast
-🌧 Light rain
-⛈ Thunderstorm
-❄ Snow
-
-Round temperatures:
-
-93.6°F → 94°F
-
-Add spaces between each city in the search results to make it easier to read:
-
-"""
