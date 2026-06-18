@@ -71,7 +71,5 @@ The program prints a formatted 10-day forecast including high/low temperatures a
 
 Feel free to open issues or submit pull requests to improve error handling, formatting, or to add features (units toggle, caching, etc.).
 
-## License
 
-This project is provided without an explicit license. Add a license file if you intend to publish or share the code.
 
