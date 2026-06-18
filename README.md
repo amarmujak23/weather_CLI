@@ -67,9 +67,3 @@ The program prints a formatted 10-day forecast including high/low temperatures a
 - Network errors: check connectivity and retry.
 - If forecasts fail to load, verify the Open-Meteo service is reachable and the coordinates returned by geocoding are valid.
 
-## Contributing
-
-Feel free to open issues or submit pull requests to improve error handling, formatting, or to add features (units toggle, caching, etc.).
-
-
-
